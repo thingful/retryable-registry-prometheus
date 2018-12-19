@@ -6,6 +6,13 @@ type Registry struct {
 	*prometheus.Registry
 }
 
+var (
+	defaultRegistry = NewRegistry()
+
+	// DefaultRegisterer is an instance of our retryable registry
+	DefaultRegisterer prometheus.Registerer = defaultRegistry
+)
+
 // NewRegistry returns an instance of our retryable registry. This is a registry
 // that when we call `MustRegister` we try to register, if that fails we try to
 // unregister, and re-register the collector, else we panic as before.
@@ -31,4 +38,10 @@ func (r *Registry) MustRegister(cs ...prometheus.Collector) {
 			}
 		}
 	}
+}
+
+// MustRegister registers the provided collectors with the DefaultRegisterer and
+// panics if any error occurs.
+func MustRegister(cs ...prometheus.Collector) {
+	DefaultRegisterer.MustRegister(cs...)
 }
